@@ -1,0 +1,7 @@
+.yarn
+dist
+build
+node_modules
+
+# npm files - don't need formatting
+package-lock.json
