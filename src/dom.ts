@@ -128,6 +128,56 @@ export class DOMNode<T extends Element> extends Disposable {
         }
     }
 
+    public style(name: string): string | undefined;
+    public style(name: string, value: string | Value<string>): this;
+    public style(name: string, value: string | Value<string>, condition: boolean | Value<boolean>): this;
+    public style(name: string, value?: string | Value<string>, condition?: boolean | Value<boolean>): this | string | undefined {
+        const el = this._element as unknown as HTMLElement | SVGElement;
+
+        if (!el.style) return this;
+        if (value === undefined) return el.style.getPropertyValue(name);
+
+        if (condition instanceof Value) {
+            this.register(
+                condition.subscribe((cond) => {
+                    if (cond) {
+                        if (value instanceof Value) {
+                            this.register(value.subscribe((val) => el.style.setProperty(name, val)));
+                        } else {
+                            el.style.setProperty(name, value);
+                        }
+                    } else {
+                        el.style.removeProperty(name);
+                    }
+                })
+            );
+        } else if (condition === true || condition === undefined) {
+            if (value instanceof Value) {
+                this.register(value.subscribe((val) => el.style.setProperty(name, val)));
+            } else {
+                el.style.setProperty(name, value);
+            }
+        } else {
+            el.style.removeProperty(name);
+        }
+    }
+
+    public display(isVisible: boolean | Value<boolean>): this {
+        const el = this._element as unknown as HTMLElement | SVGElement;
+        if (!el.style) return this;
+
+        if (isVisible instanceof Value) {
+            this.register(
+                isVisible.subscribe((visible) => {
+                    el.style.display = visible ? '' : 'none';
+                })
+            );
+        } else {
+            el.style.display = isVisible ? '' : 'none';
+        }
+        return this;
+    }
+
     public append(...children: (DOMNode<any> | Element | string)[]): this {
         const fragment = document.createDocumentFragment();
 
