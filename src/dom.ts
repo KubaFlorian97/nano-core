@@ -98,11 +98,13 @@ export class DOMNode<T extends Element> extends Disposable {
     }
 
     private toggleClass(className: string | string[], add: boolean): void {
-        const classes = Array.isArray(className) ? className : className.split(' ').filter(Boolean);
-        if (add) {
-            this._element.classList.add(...classes);
-        } else {
-            this._element.classList.remove(...classes);
+        if (className) {
+            const classes = Array.isArray(className) ? className : className.split(' ').filter(Boolean);
+            if (add) {
+                this._element.classList.add(...classes);
+            } else {
+                this._element.classList.remove(...classes);
+            }
         }
     }
 
